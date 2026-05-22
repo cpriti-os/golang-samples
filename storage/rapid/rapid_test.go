@@ -196,6 +196,21 @@ func TestOpenMultipleObjectsRangedRead(t *testing.T) {
 	}
 }
 
+func TestOpenMultipleObjectsMRDRangedRead(t *testing.T) {
+	var b bytes.Buffer
+	dataSlices, err := openMultipleObjectsMRDRangedRead(&b, zonalBucketName, []string{downloadObject, downloadObject, downloadObject})
+	if err != nil {
+		t.Fatalf("running sample: %v, output: %v", err, b.String())
+	}
+	expected := slices.Concat(downloadData[:1024], downloadData[2048:3072])
+	for _, d := range dataSlices {
+		if !bytes.Equal(d, expected) {
+			t.Errorf("downloaded %v bytes, did not match expected bytes, output: %v", len(d), b.String())
+		}
+	}
+}
+
+
 func TestReadAppendableObjectTail(t *testing.T) {
 	// Test passes locally but currently takes too long to run. Skipping
 	// on internal issue which will unblock running in CI.
